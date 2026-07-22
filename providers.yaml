@@ -1,0 +1,261 @@
+schema_version: 2
+
+# ─── Solo Ollama ──────────────────────────────────────────────────────────────
+# Activar con: --providers-config config/providers.local.yaml
+providers:
+  ollama:
+    class: llm.ollama.OllamaProvider
+    endpoints:
+      default:
+        base_url: http://127.0.0.1:11434
+        api_keys: []
+
+# ─── Modelos ──────────────────────────────────────────────────────────────────
+models:
+  "qwen2.5:14b":
+    provider: ollama
+    endpoint: default
+    estimated_capabilities:
+      vision: 0
+      reasoning: 8
+      json: 8
+      long_context: 7
+      speed: 6
+      creativity: 7
+    limits:
+      rpm: 60
+      tpm: 32_000
+    cost_per_1k_tokens: 0.0
+
+  "gemma3:12b":
+    provider: ollama
+    endpoint: default
+    estimated_capabilities:
+      vision: 7
+      reasoning: 7
+      json: 7
+      long_context: 6
+      speed: 6
+      creativity: 6
+    limits:
+      rpm: 60
+      tpm: 32_000
+    cost_per_1k_tokens: 0.0
+
+# ─── Perfiles de tarea ────────────────────────────────────────────────────────
+task_profiles:
+  vision_selection:
+    weights:
+      quality: 0.30
+      availability: 0.45
+      latency: 0.15
+      cost: 0.10
+    cache_ttl: 86400
+    temperature: 0.3
+    top_p: 0.9
+    json_mode: true
+    streaming: false
+    strategy: score
+
+  narrative_generation:
+    weights:
+      quality: 0.25
+      availability: 0.45
+      latency: 0.20
+      cost: 0.10
+    cache_ttl: 3600
+    temperature: 0.7
+    top_p: 0.9
+    json_mode: true
+    streaming: false
+    strategy: score
+
+  title_generation:
+    weights:
+      quality: 0.25
+      availability: 0.40
+      latency: 0.25
+      cost: 0.10
+    cache_ttl: 604800
+    temperature: 0.9
+    top_p: 0.95
+    json_mode: false
+    streaming: false
+    strategy: fastest
+
+  quality_validation:
+    weights:
+      quality: 0.30
+      availability: 0.40
+      latency: 0.15
+      cost: 0.15
+    cache_ttl: 7200
+    temperature: 0.2
+    top_p: 0.8
+    json_mode: true
+    streaming: false
+    strategy: score
+
+  generic_text:
+    weights:
+      quality: 0.20
+      availability: 0.45
+      latency: 0.25
+      cost: 0.10
+    cache_ttl: 3600
+    temperature: 0.7
+    top_p: 0.9
+    json_mode: false
+    streaming: false
+    strategy: score
+
+# ─── Tareas del pipeline ──────────────────────────────────────────────────────
+tasks:
+  curador:
+    profile: vision_selection
+    preferred_models:
+      - "gemma3:12b"
+    require_capabilities:
+      vision: 5
+      json: 4
+    max_cost: 0.0
+
+  guion:
+    profile: narrative_generation
+    preferred_models:
+      - "qwen2.5:14b"
+    require_capabilities:
+      json: 4
+      long_context: 4
+    max_cost: 0.0
+
+  thumbnail:
+    profile: title_generation
+    preferred_models:
+      - "qwen2.5:14b"
+    require_capabilities: {}
+    max_cost: 0.0
+
+  auditor:
+    profile: quality_validation
+    preferred_models:
+      - "qwen2.5:14b"
+      - "gemma3:12b"
+    require_capabilities:
+      json: 4
+      vision: 4
+    max_cost: 0.0
+
+  vision:
+    profile: vision_selection
+    preferred_models:
+      - "gemma3:12b"
+    require_capabilities:
+      vision: 4
+    max_cost: 0.0
+
+  guion_block:
+    profile: narrative_generation
+    preferred_models:
+      - "qwen2.5:14b"
+    require_capabilities:
+      json: 4
+      long_context: 4
+    max_cost: 0.0
+
+# ─── Benchmark ────────────────────────────────────────────────────────────────
+benchmark:
+  suite_path: config/benchmark_suite.yaml
+  metrics_path: metrics/model_metrics.json
+  results_path: metrics/benchmark_results.json
+  full_interval_minutes: 360
+  micro_on_error_threshold: 3
+  micro_on_state_change: true
+  max_workers: 1
+
+# ─── Cache ────────────────────────────────────────────────────────────────────
+cache:
+  backend: semantic
+  database: metrics/cache.db
+  default_ttl: 3600
+  ttl:
+    curador: 86400
+    guion: 3600
+    thumbnail: 604800
+    auditor: 7200
+    vision: 86400
+    guion_block: 3600
+
+# ─── Prompt Optimizer ─────────────────────────────────────────────────────────
+prompt_optimizer:
+  enabled: true
+  passes:
+    - normalize
+    - ocr_cleanup
+    - deduplicate
+    - compression
+
+# ─── Batching ─────────────────────────────────────────────────────────────────
+batching:
+  enabled: true
+  max_batch_size: 10
+  default_timeout: 2.0
+
+# ─── Telemetry ────────────────────────────────────────────────────────────────
+telemetry:
+  enabled: true
+  history_dir: metrics/history
+  summary_on_finish: true
+
+# ─── Metrics ──────────────────────────────────────────────────────────────────
+metrics:
+  stats_path: provider_stats.json
+  traces_dir: traces
+  max_traces_per_file: 1000
+
+# ─── Circuit Breaker ──────────────────────────────────────────────────────────
+circuit_breaker:
+  initial_backoff: 30
+  max_backoff: 480
+  background_ping_interval: 60
+  success_threshold: 3
+
+# ─── Scheduler ────────────────────────────────────────────────────────────────
+scheduler:
+  workers: 4
+  queue_size: 100
+
+# ─── Retry ────────────────────────────────────────────────────────────────────
+retry:
+  max_attempts: 5
+  base_delay: 1
+  max_delay: 120
+  jitter: true
+
+# ─── State ────────────────────────────────────────────────────────────────────
+state:
+  autosave: true
+  interval_seconds: 30
+
+# ─── Resource Manager ─────────────────────────────────────────────────────────
+resource_manager:
+  enabled: true
+  ram_limit_percent: 90
+  model_params_b:
+    "qwen2.5:14b": 14
+    "gemma3:12b": 12
+
+# ─── Provider Pool ────────────────────────────────────────────────────────────
+provider_pool:
+  max_size: 10
+
+# ─── Health Monitor ───────────────────────────────────────────────────────────
+health_monitor:
+  interval: 30
+
+# ─── Maintenance ──────────────────────────────────────────────────────────────
+maintenance:
+  enabled: true
+  compact_interval: 86400
+  clean_expired_interval: 3600
+  clean_temp_interval: 3600

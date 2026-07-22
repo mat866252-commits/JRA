@@ -1,0 +1,35 @@
+# Dependencias completas para Google Colab
+# Instalar con: pip install -r requirements.colab.txt
+
+# --- Core pipeline ---
+PyMuPDF>=1.24,<2
+Pillow>=10,<12
+opencv-python-headless>=4.10,<5
+numpy>=1.26,<3
+edge-tts>=7,<8
+easyocr>=1.7,<2
+
+# --- Config, CLI, y dashboard ---
+PyYAML>=6,<7
+typer>=0.12,<1
+fastapi>=0.115,<1
+uvicorn>=0.34,<1
+jinja2>=3.1,<4
+websockets>=14,<15
+httpx>=0.28,<1
+
+# --- Utilidades ---
+pydantic>=2.0,<3
+psutil>=5.9,<7
+
+# --- Opcional: Matcher con modelos de visión (requiere GPU) ---
+# transformers>=4,<5
+# torch>=2,<3
+
+# --- Opcional: Export PDF ---
+# weasyprint>=62,<70
+
+# --- Opcional: Subida a YouTube ---
+# google-auth>=2,<3
+# google-api-python-client>=2,<3
+# google_auth_oauthlib>=1,<2

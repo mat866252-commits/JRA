@@ -1,0 +1,16 @@
+# Dependencias NUCLEO: requeridas siempre por run_pipeline.py y el resto
+# del pipeline base (crop -> analyze -> verify -> summarize -> audio -> video).
+#
+# Dependencias OPCIONALES (activadas por flags de run_pipeline.py) viven en
+# archivos separados para no forzar instalar Torch/GPU o el SDK de Google
+# a quien no use esas fases:
+#   requirements-matcher.txt   -> --matcher-mode siglip/clip (vision_loader.py, matcher.py)
+#   requirements-youtube.txt   -> subida automatica a YouTube (upload_youtube.py)
+opencv-python>=4.10,<5
+numpy>=1.26,<3
+edge-tts>=7,<8
+Pillow>=10,<12
+PyMuPDF>=1.24,<2
+easyocr>=1.7,<2
+pydantic>=2.0,<3
+psutil>=5.9,<7

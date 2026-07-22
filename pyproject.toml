@@ -1,0 +1,44 @@
+[project]
+name = "manhwa-pipeline"
+version = "2.1.0"
+description = "Pipeline local para montar resúmenes narrados de manhwa"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "performance: Performance benchmarks",
+    "regression: Regression tests",
+    "slow: Slow tests",
+    "benchmark: Benchmark tests",
+]
+addopts = "-v --strict-markers --tb=short"
+minversion = "7.0"
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+precision = 2
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"

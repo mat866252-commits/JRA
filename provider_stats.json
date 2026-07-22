@@ -1,0 +1,30 @@
+{
+  "gemini-2.0-flash": {
+    "success_count": 0,
+    "error_count": 1,
+    "total_latency": 0.0,
+    "latency_samples": [],
+    "429_count": 0,
+    "5xx_count": 0,
+    "timeout_count": 0,
+    "total_tokens_in": 0,
+    "total_tokens_out": 0,
+    "total_cost": 0.0,
+    "consecutive_failures": 1,
+    "last_used": 1784643154.9154897
+  },
+  "google/gemini-3.5-flash": {
+    "success_count": 0,
+    "error_count": 1,
+    "total_latency": 0.0,
+    "latency_samples": [],
+    "429_count": 0,
+    "5xx_count": 0,
+    "timeout_count": 0,
+    "total_tokens_in": 0,
+    "total_tokens_out": 0,
+    "total_cost": 0.0,
+    "consecutive_failures": 1,
+    "last_used": 1784643154.9154897
+  }
+}
